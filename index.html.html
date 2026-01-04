@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Industriekaufmann – Prompt Generator</title>
+
+  <style>
+    :root{
+      --brand: #001D3B;
+      --bg: #f9f9f9;
+      --field: #ffffff;
+      --field-border: #d7dbe2;
+      --muted: #f0f0f0;
+
+      --success: #2e7d32;
+      --success-bg: rgba(46,125,50,0.10);
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+
+    body{
+      margin: 30px;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--brand);
+      line-height: 1.35;
+    }
+
+    .app{
+      max-width: 1100px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    header{
+      text-align: center;
+      margin-bottom: 6px;
+    }
+
+    h1{
+      margin: 0 0 6px 0;
+      font-size: 22px;
+      color: var(--brand);
+      letter-spacing: 0.2px;
+    }
+
+    .sub{
+      margin: 0;
+      font-size: 13px;
+      opacity: 0.85;
+    }
+
+    .card{
+      background: #fff;
+      border: 1px solid rgba(0,29,59,0.08);
+      border-radius: 14px;
+      padding: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+    }
+
+    .layout{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+
+    .controls{
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .row{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .field{
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    label{
+      font-weight: bold;
+      margin-left: 2px;
+      font-size: 14px;
+    }
+
+    select, textarea, input[type="file"]{
+      width: 100%;
+      font-size: 14px;
+      color: var(--brand);
+      background: var(--field);
+      border: 2px solid var(--field-border);
+      border-radius: 10px;
+      padding: 10px;
+      outline: none;
+    }
+
+    select{
+      padding: 10px 12px;
+      height: 42px;
+    }
+
+    textarea{
+      width: 100%;
+      min-height: 180px;
+      padding: 10px;
+      resize: vertical;
+    }
+
+    .hint{
+      font-size: 12px;
+      opacity: 0.85;
+      margin-top: -2px;
+    }
+
+    .fileWrap{
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+
+    .fileMeta{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+
+    .pill{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,29,59,0.06);
+      border: 1px solid rgba(0,29,59,0.12);
+      max-width: 100%;
+    }
+
+    .pill strong{
+      white-space: nowrap;
+    }
+
+    .pill span{
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 520px;
+    }
+
+    .btnRow{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    button{
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: transform 0.08s ease, filter 0.12s ease, background 0.12s ease;
+      user-select: none;
+    }
+
+    .btnPrimary{
+      background: var(--brand);
+      color: #fff;
+    }
+    .btnPrimary:hover{ filter: brightness(1.05); }
+    .btnPrimary:active{ filter: brightness(0.98); transform: translateY(1px); }
+
+    .btnSecondary{
+      background: #fff;
+      color: var(--brand);
+      border: 2px solid var(--field-border);
+    }
+    .btnSecondary:hover{ filter: brightness(1.03); }
+    .btnSecondary:active{ filter: brightness(0.98); transform: translateY(1px); }
+
+    .output{
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    #outputPrompt{
+      min-height: 220px;
+      background: var(--muted);
+    }
+
+    .status{
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: var(--success-bg);
+      border: 2px solid rgba(46,125,50,0.35);
+      color: var(--success);
+      font-weight: bold;
+      width: fit-content;
+      max-width: 100%;
+    }
+
+    .status .check{
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 2px solid var(--success);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 auto;
+    }
+
+    .status .check svg{
+      width: 14px;
+      height: 14px;
+      display: block;
+    }
+
+    .error{
+      display: none;
+      margin-top: 8px;
+      color: var(--danger);
+      font-weight: bold;
+      font-size: 13px;
+    }
+
+    select:focus, textarea:focus, input[type="file"]:focus, button:focus{
+      border-color: var(--brand);
+      box-shadow: 0 0 0 3px rgba(0, 29, 59, 0.12);
+      outline: none;
+    }
+    button:focus{
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 29, 59, 0.12);
+    }
+
+    footer{
+      text-align: center;
+      font-size: 13px;
+      opacity: 0.85;
+      margin-top: 6px;
+    }
+
+    @media (max-width: 980px){
+      .layout{
+        grid-template-columns: 1fr;
+      }
+      .pill span{ max-width: 70vw; }
+    }
+
+    @media (max-width: 700px){
+      body{ margin: 16px; }
+      .row{ grid-template-columns: 1fr; }
+      h1{ font-size: 20px; }
+      button{ width: 100%; }
+      .btnRow{ align-items: stretch; }
+      .status{ width: 100%; justify-content: center; }
+    }
+
+    @media (max-width: 420px){
+      body{ margin: 12px; }
+      .card{ padding: 12px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app" role="application" aria-label="Industriekaufmann Prompt Generator">
+    <header>
+      <h1>Prompt Generator – Industriekaufmann</h1>
+      <p class="sub">Wähle Einstellungen, gib deine Aufgabe ein (optional mit Bild) und kopiere den fertigen Prompt.</p>
+    </header>
+
+    <div class="layout">
+      <!-- INPUT -->
+      <section class="card controls" aria-label="Eingaben">
+        <div class="row">
+          <div class="field">
+            <label for="fach">Fach</label>
+            <select id="fach" name="fach">
+              <option value="GP" selected>GP</option>
+              <option value="SuK">SuK</option>
+              <option value="WSP">WSP</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="ueberthema">Überthema (optional)</label>
+            <select id="ueberthema" name="ueberthema" aria-describedby="ueberthemaHint" aria-label="Überthema (optional)">
+              <!-- wird dynamisch befüllt -->
+            </select>
+            <div id="ueberthemaHint" class="hint">Leer lassen, wenn du kein Überthema angeben willst.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="frage">Frage/ konkretes Thema (Freitext) oder Bild</label>
+          <textarea id="frage" name="frage" placeholder="Schreibe hier deine Aufgabenstellung oder Frage rein..."></textarea>
+
+          <div class="fileWrap">
+            <input id="bild" name="bild" type="file" accept="image/*" aria-label="Optionales Bild hochladen" />
+            <div class="fileMeta" aria-live="polite">
+              <div class="pill" id="filePill" style="display:none;">
+                <strong>Bild angehängt:</strong>
+                <span id="fileName"></span>
+              </div>
+              <span class="hint">Optional: Bild hochladen (nur Dateiname wird im Prompt erwähnt, keine Analyse).</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="darstellung">Darstellungsform</label>
+            <select id="darstellung" name="darstellung">
+              <option value="Anki-Karteikarte">Anki-Karteikarte</option>
+              <option value="Skript Elevenlabs">Skript Elevenlabs</option>
+              <option value="Aufgabe lösen" selected>Aufgabe lösen</option>
+              <option value="Erklärung">Erklärung</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="laenge">Länge</label>
+            <select id="laenge" name="laenge">
+              <option value="knappe Zusammenfassung/Lösung">knappe Zusammenfassung/Lösung</option>
+              <option value="kurze Erläuterung" selected>kurze Erläuterung</option>
+              <option value="ausführliche Erklärung">ausführliche Erklärung</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btnRow" aria-label="Aktionen">
+          <button id="btnGenerate" class="btnPrimary" type="button">Prompt generieren &amp; kopieren</button>
+          <button id="btnReset" class="btnSecondary" type="button">Prompt zurücksetzen</button>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite">
+          <span class="check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></path>
+            </svg>
+          </span>
+          <span>Prompt erfolgreich kopiert</span>
+        </div>
+
+        <div id="error" class="error" role="alert"></div>
+      </section>
+
+      <!-- OUTPUT -->
+      <section class="card output" aria-label="Ausgabe">
+        <div class="field">
+          <label for="outputPrompt">Prompt-Ausgabe</label>
+          <textarea id="outputPrompt" readonly placeholder="Hier erscheint dein generierter Prompt..."></textarea>
+          <div class="hint">Tipp: Der Prompt wird beim Generieren automatisch kopiert.</div>
+        </div>
+      </section>
+    </div>
+
+    <footer>© 2026 Industriekaufmann</footer>
+  </div>
+
+  <script>
+    const fachEl = document.getElementById('fach');
+    const ueberthemaEl = document.getElementById('ueberthema');
+    const frageEl = document.getElementById('frage');
+    const bildEl = document.getElementById('bild');
+    const darstellungEl = document.getElementById('darstellung');
+    const laengeEl = document.getElementById('laenge');
+
+    const outputEl = document.getElementById('outputPrompt');
+
+    const btnGenerate = document.getElementById('btnGenerate');
+    const btnReset = document.getElementById('btnReset');
+
+    const statusEl = document.getElementById('status');
+    const errorEl = document.getElementById('error');
+
+    const filePill = document.getElementById('filePill');
+    const fileNameEl = document.getElementById('fileName');
+
+    let statusTimer = null;
+
+    // =========================================================
+    // ÜBERTHEMA-OPTIONEN (pro Fach):
+    // - Erste Option ist IMMER "leer" (value="") und wird standardmäßig gesetzt.
+    // - Anzeige ist absichtlich "leer" (non-breaking space), damit im Dropdown "nichts" steht.
+    // =========================================================
+    const BLANK_LABEL = "\u00A0";
+
+    const UEBERTHEMA_OPTIONS = {
+      GP: [
+        { value: "", label: BLANK_LABEL },
+        { value: "Grundlagen BWL", label: "Grundlagen BWL" },
+        { value: "Produltionswirtschaft", label: "Produltionswirtschaft" },
+        { value: "Beschaffung", label: "Beschaffung" },
+        { value: "Personalwirtschaft", label: "Personalwirtschaft" },
+        { value: "Absatzprozesse", label: "Absatzprozesse" },
+        { value: "Invstition- und Finanzierungsprozesse", label: "Invstition- und Finanzierungsprozesse" }
+      ],
+      SuK: [
+        { value: "", label: BLANK_LABEL },
+        { value: "Finanzbuchhaltung", label: "Finanzbuchhaltung" },
+        { value: "Kosten- und Leistungsrechnung", label: "Kosten- und Leistungsrechnung" }
+      ],
+      WSP: [
+        { value: "", label: BLANK_LABEL },
+        { value: "Wirtschaftsrecht", label: "Wirtschaftsrecht" },
+        { value: "VWL", label: "VWL" }
+      ]
+    };
+
+    const DEFAULTS = {
+      fach: "GP",
+      ueberthema: "",
+      frage: "",
+      darstellung: "Aufgabe lösen",
+      laenge: "kurze Erläuterung"
+    };
+
+    function clearStatus() {
+      statusEl.style.display = 'none';
+      if (statusTimer) {
+        clearTimeout(statusTimer);
+        statusTimer = null;
+      }
+    }
+
+    function showStatus() {
+      statusEl.style.display = 'flex';
+      if (statusTimer) clearTimeout(statusTimer);
+      statusTimer = setTimeout(() => {
+        statusEl.style.display = 'none';
+        statusTimer = null;
+      }, 2500);
+    }
+
+    function showError(message) {
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+      setTimeout(() => {
+        errorEl.style.display = 'none';
+        errorEl.textContent = '';
+      }, 3200);
+    }
+
+    function escapePromptText(text) {
+      return (text || "").trim();
+    }
+
+    function buildFachGlossarBlock(fach) {
+      if (fach === "GP") {
+        return [
+          "Fach-Regeln (GP – Geschäftsprozesse / BWL):",
+          "- Themenfokus: Grundlagen BWL, Produktionswirtschaft, Beschaffung, Personalwirtschaft, Absatzprozesse, Investitions- und Finanzierungsprozesse.",
+          "- Definitionen immer in genau einem Satz; nutze nur Fachbegriffe, die ein Industriekaufmann erklären kann.",
+          "- Bei Vor- und Nachteilen bewerte insbesondere nach Kosten, Zeit, Qualität (und ggf. weitere sinnvolle Kriterien)."
+        ].join("\n");
+      }
+
+      if (fach === "SuK") {
+        return [
+          "Fach-Regeln (SuK – Steuerung und Kontrolle / Rechnungswesen):",
+          "- Themenfokus: Finanzbuchhaltung, Kosten- und Leistungsrechnung.",
+          "- Besonders gründlich arbeiten: alle Zahlen logisch herleiten, Rechenwege sauber und nachvollziehbar darstellen.",
+          "- Ergebnis muss stimmen; antworte aus der „Buchhalter-Brille“."
+        ].join("\n");
+      }
+
+      return [
+        "Fach-Regeln (WSP – Wirtschafts- und Sozialprozesse):",
+        "- Themenfokus: Wirtschaftsrecht, VWL.",
+        "- Formulierungen müssen wirklich korrekt sein; kleine Fehler können große Probleme machen.",
+        "- Wenn Unsicherheit besteht: stelle Rückfragen und fordere ggf. eine Quelle/Screenshot aus OneNote an, bevor du final antwortest."
+      ].join("\n");
+    }
+
+    function buildDarstellungsformBlock(selectedForm) {
+      const commonIntro = [
+        "Darstellungsform-Regeln (wende exakt die ausgewählte Darstellungsform an):"
+      ];
+
+      const rules = [
+        "- Anki-Karteikarte: Ausgabe IMMER exakt als:",
+        "  Vorderseite: …",
+        "  Rückseite: …",
+        "  (keine weiteren Überschriften)",
+        "- Skript Elevenlabs: Sehr ausführlicher Fließtext zum Vorlesen; KEINE Stichpunkte, KEINE Aufzählungen, KEINE Überschriften, nur reiner Fließtext.",
+        "- Aufgabe lösen: Aufgabe in sinnvoller Länge vollständig lösen; Rechenwege/Begründungen gemäß Fachregeln.",
+        "- Erklärung: Definition mit Erklärung; wenn nötig Beispiele oder Rechnung; Länge so wie nötig."
+      ];
+
+      const active = "Ausgewählt: " + selectedForm;
+
+      return [...commonIntro, active, ...rules].join("\n");
+    }
+
+    function buildLaengeBlock(selectedLength) {
+      return [
+        "Längensteuerung (halte dich daran):",
+        "- knappe Zusammenfassung/Lösung: kurz und direkt, nur das Wesentliche.",
+        "- kurze Erläuterung: etwas ausführlicher, aber nicht unnötig lang.",
+        "- ausführliche Erklärung: sehr detailliert, mit Herleitung/Beispielen, je nach Fach.",
+        "Ausgewählt: " + selectedLength
+      ].join("\n");
+    }
+
+    function buildQualityClause(fach) {
+      if (fach === "SuK") {
+        return "Qualitätsklausel (SuK): Wenn du dir bei einem Rechenschritt unsicher bist, erkläre die Annahme und frage nach fehlenden Angaben.";
+      }
+      if (fach === "WSP") {
+        return "Qualitätsklausel (WSP): Wenn du dir bei einer Rechtsfrage unsicher bist, stelle Rückfragen oder fordere Quelle/Screenshot an, bevor du final antwortest.";
+      }
+      return "";
+    }
+
+    function buildPrompt() {
+      const fach = fachEl.value;
+      const ueberthema = ueberthemaEl.value; // leer => wird NICHT in den Prompt geschrieben
+      const darstellung = darstellungEl.value;
+      const laenge = laengeEl.value;
+
+      const frageText = escapePromptText(frageEl.value);
+      const file = bildEl.files && bildEl.files[0] ? bildEl.files[0] : null;
+
+      const contextLines = [
+        "Kontext:",
+        "- Fach: " + fach
+      ];
+      if (ueberthema) contextLines.push("- Überthema: " + ueberthema);
+      contextLines.push("- Darstellungsform: " + darstellung);
+      contextLines.push("- Länge: " + laenge);
+
+      const userInputLines = [
+        "Aufgabe/Frage:",
+        (frageText ? frageText : "(keine Angabe – bitte Rückfragen stellen, welche Aufgabe genau gemeint ist)")
+      ];
+
+      if (file) {
+        userInputLines.push("");
+        userInputLines.push("Bild angehängt: " + file.name + " (bitte berücksichtigen, falls relevant)");
+      }
+
+      const qualityClause = buildQualityClause(fach);
+
+      const parts = [
+        "Du bist ein erfahrener Dozent/Prüfer für Industriekaufleute.",
+        "Antworte ausschließlich auf Deutsch.",
+        "",
+        contextLines.join("\n"),
+        "",
+        buildFachGlossarBlock(fach),
+        "",
+        buildDarstellungsformBlock(darstellung),
+        "",
+        buildLaengeBlock(laenge),
+        "",
+        userInputLines.join("\n")
+      ];
+
+      if (qualityClause) {
+        parts.push("");
+        parts.push(qualityClause);
+      }
+
+      parts.push("");
+      parts.push("Wichtig: Antworte präzise, nachvollziehbar und fachlich korrekt. Falls Angaben fehlen, stelle zuerst gezielte Rückfragen.");
+
+      return parts.join("\n");
+    }
+
+    async function copyToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      temp.setAttribute('readonly', '');
+      temp.style.position = 'fixed';
+      temp.style.left = '-9999px';
+      temp.style.top = '-9999px';
+      document.body.appendChild(temp);
+      temp.select();
+      temp.setSelectionRange(0, temp.value.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(temp);
+      if (!ok) throw new Error("Kopieren nicht möglich.");
+    }
+
+    function setUeberthemaOptionsForFach(fach) {
+      const options = UEBERTHEMA_OPTIONS[fach] || [{ value: "", label: BLANK_LABEL }];
+
+      ueberthemaEl.innerHTML = "";
+
+      for (const opt of options) {
+        const o = document.createElement('option');
+        o.value = opt.value;
+        o.textContent = opt.label;
+        ueberthemaEl.appendChild(o);
+      }
+
+      ueberthemaEl.value = "";
+      ueberthemaEl.selectedIndex = 0;
+    }
+
+    function syncFileUI() {
+      const file = bildEl.files && bildEl.files[0] ? bildEl.files[0] : null;
+      if (file) {
+        fileNameEl.textContent = file.name;
+        filePill.style.display = 'inline-flex';
+      } else {
+        fileNameEl.textContent = "";
+        filePill.style.display = 'none';
+      }
+    }
+
+    function resetAll() {
+      fachEl.value = DEFAULTS.fach;
+
+      setUeberthemaOptionsForFach(DEFAULTS.fach);
+      ueberthemaEl.value = DEFAULTS.ueberthema;
+      ueberthemaEl.selectedIndex = 0;
+
+      frageEl.value = DEFAULTS.frage;
+
+      darstellungEl.value = DEFAULTS.darstellung;
+      laengeEl.value = DEFAULTS.laenge;
+
+      bildEl.value = "";
+      syncFileUI();
+
+      outputEl.value = "";
+      clearStatus();
+      errorEl.style.display = 'none';
+      errorEl.textContent = '';
+    }
+
+    fachEl.addEventListener('change', () => {
+      setUeberthemaOptionsForFach(fachEl.value);
+      clearStatus();
+    });
+
+    bildEl.addEventListener('change', () => {
+      syncFileUI();
+      clearStatus();
+    });
+
+    btnGenerate.addEventListener('click', async () => {
+      clearStatus();
+
+      const prompt = buildPrompt();
+      outputEl.value = prompt;
+
+      try {
+        await copyToClipboard(prompt);
+        showStatus();
+      } catch (err) {
+        showError("Kopieren hat nicht funktioniert. Markiere den Text im Feld „Prompt-Ausgabe“ und kopiere manuell (Strg+C).");
+      }
+    });
+
+    btnReset.addEventListener('click', () => {
+      resetAll();
+    });
+
+    (function init() {
+      setUeberthemaOptionsForFach(DEFAULTS.fach);
+      ueberthemaEl.value = "";
+      ueberthemaEl.selectedIndex = 0;
+
+      darstellungEl.value = DEFAULTS.darstellung;
+      laengeEl.value = DEFAULTS.laenge;
+
+      syncFileUI();
+      clearStatus();
+    })();
+  </script>
+</body>
+</html>
