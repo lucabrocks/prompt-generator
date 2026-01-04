@@ -495,22 +495,34 @@
     }
 
     function buildDarstellungsformBlock(selectedForm) {
+      // HIER wurde NUR der Anki-Teil inhaltlich verbessert (Rest unverändert).
       const commonIntro = [
         "Darstellungsform-Regeln (wende exakt die ausgewählte Darstellungsform an):"
       ];
 
       const rules = [
-        "- Anki-Karteikarte: Ausgabe IMMER exakt als:",
-        "  Vorderseite: …",
-        "  Rückseite: …",
-        "  (keine weiteren Überschriften)",
+        // --- ANKI (verbessert) ---
+        "- Anki-Karteikarte (Anki Type: Einfach):",
+        "  - Erstelle mehrere kleine Karten statt einer großen: pro Karte genau EIN Begriff/Ein Schritt/Ein Mini-Thema.",
+        "  - Vorderseite ist immer eine logische, konkrete Frage.",
+        "  - Rückseite ist eine klare, kurze Antwort PLUS eine kleine Erklärung (1–3 Sätze).",
+        "  - Niemals alles in einer Karte bündeln; lieber mehr Karten mit kleinen Fragestellungen.",
+        "  - Ausgabeformat ist zwingend und exakt (ohne weitere Überschriften, ohne Nummerierung):",
+        "    Vorderseite:",
+        "    Rückseite:",
+        "",
+        "    Vorderseite:",
+        "    Rückseite:",
+        "  - Nach den Karten: Frage den User IMMER, ob er zufrieden ist und ob/welche Änderung er möchte.",
+        "  - Wenn der User zufrieden ist (oder nachdem Änderungen eingearbeitet wurden): Frage nochmals, ob du es automatisch als Anki-Deck speichern sollst.",
+        "  - Wenn ja: Frage nach dem gewünschten Namen und speichere/es ausgeben als „<Name>.apkg“.",
+        // --- REST (wie vorher) ---
         "- Skript Elevenlabs: Sehr ausführlicher Fließtext zum Vorlesen; KEINE Stichpunkte, KEINE Aufzählungen, KEINE Überschriften, nur reiner Fließtext.",
         "- Aufgabe lösen: Aufgabe in sinnvoller Länge vollständig lösen; Rechenwege/Begründungen gemäß Fachregeln.",
         "- Erklärung: Definition mit Erklärung; wenn nötig Beispiele oder Rechnung; Länge so wie nötig."
       ];
 
       const active = "Ausgewählt: " + selectedForm;
-
       return [...commonIntro, active, ...rules].join("\n");
     }
 
