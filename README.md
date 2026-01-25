@@ -1,1 +1,1 @@
-Business Text Anonymisierer
+Prompt Generator
