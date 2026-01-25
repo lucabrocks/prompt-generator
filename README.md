@@ -1,1 +1,1 @@
-# prompt-generator
+Business Text Anonymisierer
